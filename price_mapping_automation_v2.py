@@ -327,8 +327,8 @@ class PBmapper():
                 discrepancy_type.append("checkers Mismatch")
                 discrepancy_flag = 1
 
-            if company_df.loc[index, "pb_check"] == "Not matching" or company_df.loc[index, "pb_check"] == "Not matching"  :
-                discrepancy_type.append("checkers Mismatch")
+            if company_df.loc[index, "Mismatch_check"] == "Not available" :
+                discrepancy_type.append("checkers not available")
                 discrepancy_flag = 1
 
             if discrepancy_flag == 0:
