@@ -306,23 +306,37 @@ class PBmapper():
                 company_df.loc[index, "P1_check"] = "Not available"
                 company_df.loc[index, "Listprice_check"] = "Not available"
 
-
+            discrepancy_flag = 0 
             # recording the discrepany column
             if company_df.loc[index, "Matched_pricingdoc_SPN"] == "Not available":
                 discrepancy_type.append("Matching SPN")
-            elif company_df.loc[index, "Cost_check"] == "Not matching":
+                discrepancy_flag = 1
+            if company_df.loc[index, "Cost_check"] == "Not matching":
                 discrepancy_type.append("Cost match")
-            elif company_df.loc[index, "Listprice_check"] == "Not matching":
-                discrepancy_type.append("list price match")
-            elif company_df.loc[index, "P1_check"] == "Not matching":
-                discrepancy_type.append("P1 match")
-            elif company_df.loc[index, "Mismatch_check"] == "Not matching" :
-                discrepancy_type.append("checkers Mismatch")
-            else:
-                discrepancy_type.append("All right")
+                discrepancy_flag = 1
 
-            # discrepancy types joined as a single string
-            discrepancy_col = ", ".join(map(str, discrepancy_type))
+            if company_df.loc[index, "Listprice_check"] == "Not matching":
+                discrepancy_type.append("list price match")
+                discrepancy_flag = 1
+
+            if company_df.loc[index, "P1_check"] == "Not matching":
+                discrepancy_type.append("P1 match")
+                discrepancy_flag = 1
+                
+            if company_df.loc[index, "Mismatch_check"] == "Not matching" :
+                discrepancy_type.append("checkers Mismatch")
+                discrepancy_flag = 1
+
+            if company_df.loc[index, "pb_check"] == "Not matching" or company_df.loc[index, "pb_check"] == "Not matching"  :
+                discrepancy_type.append("checkers Mismatch")
+                discrepancy_flag = 1
+
+            if discrepancy_flag == 0:
+                discrepancy_type.append("All right")
+                discrepancy_col = "All right"
+            else:
+                # discrepancy types joined as a single string
+                discrepancy_col = " - ".join(map(str, discrepancy_type))
 
             # imputing the discrepancy column with the string
             company_df.loc[index, "Discrepancy_type"] = discrepancy_col

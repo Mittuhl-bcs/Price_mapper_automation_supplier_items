@@ -55,7 +55,7 @@ def read_data_into_table(connection, P21_files, new_loop):
         df = company_df[company_df["Discrepancy_type"] != "All right"]
         
         # save only the discrepancies in this df and concat the main df
-        main_df = pd.concat([main_df, df])
+        main_df = pd.concat([main_df, df], ignore_index=True)
 
 
     cursor = connection.cursor()
@@ -122,35 +122,35 @@ def read_data_into_table(connection, P21_files, new_loop):
     cursor.close()
 
             
-    # export the csv from the database
-    def export_table_to_csv(connection, table_name, output_file):
-        try:
-            cursor = connection.cursor()
+# export the csv from the database
+def export_table_to_csv(connection, table_name, output_file):
+    try:
+        cursor = connection.cursor()
 
-            with open(output_file, 'w', encoding='utf-8', newline='') as file:
-                csv_writer = csv.writer(file)
+        with open(output_file, 'w', encoding='utf-8', newline='') as file:
+            csv_writer = csv.writer(file)
 
-                            
-                # Fetch data from the table and column headers
-                cursor.execute(f"SELECT * FROM {table_name}")
-                rows = cursor.fetchall()
-                column_names = [desc[0] for desc in cursor.description]
+                        
+            # Fetch data from the table and column headers
+            cursor.execute(f"SELECT * FROM {table_name}")
+            rows = cursor.fetchall()
+            column_names = [desc[0] for desc in cursor.description]
+            
+            # Write column headers
+            csv_writer.writerow(column_names)
+
+            # Write rows
+            for row in rows:
+                csv_writer.writerow([
+                    str(cell).encode('utf-8', errors='replace').decode('utf-8').replace('?', 'Error character')
+                    for cell in row
+                ])
                 
-                # Write column headers
-                csv_writer.writerow(column_names)
+    except psycopg2.Error as e:
+        logging.error(f"Error exporting data from table '{table_name}' to CSV file")
+        logging.error(e)
 
-                # Write rows
-                for row in rows:
-                    csv_writer.writerow([
-                        str(cell).encode('utf-8', errors='replace').decode('utf-8').replace('?', 'Error character')
-                        for cell in row
-                    ])
-                    
-        except psycopg2.Error as e:
-            logging.error(f"Error exporting data from table '{table_name}' to CSV file")
-            logging.error(e)
-
-            raise ValueError(e)
+        raise ValueError(e)
 
 
 
