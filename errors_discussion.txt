@@ -1,0 +1,4 @@
+String values in list price - distech = 0 "call for quote"
+GDR - pricebook
+JCI
+RFL
