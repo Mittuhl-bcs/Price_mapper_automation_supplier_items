@@ -9,7 +9,7 @@ import glob
 import logging
 from datetime import datetime
 import json
-
+import BCS_connector
 
 current_time = datetime.now()
 fcurrent_time = current_time.strftime("%Y-%m-%d-%H-%M-%S")
@@ -20,11 +20,66 @@ logging.basicConfig(filename=log_file, level=logging.DEBUG)
 
 # class for this
 class PBmapper():
-    prefix_name = {"FND" : "Functional devices", 
-                   "HWT" : "Honeywell thermal solutions",
-                   "APF" : "Apollo fire", 
-                   "ALR" : "Alerton",
-                   "75F" : "75F"
+    prefix_name = {"75F": "75F",
+                   "RES": "ADEMCO, INC. (Resideo)",
+                   "ALR": "ALERTON NOVAR",
+                   "ALT": "Altech Corporation",
+                   "APF": "Apollo-Fire",
+                   "ASC": "ASCO L.P.",
+                   "ASI": "ASI Controls",
+                   "ACI": "Automation Components Inc (ACI)",
+                   "BEL": "BELIMO AIRCONTROLS (USA), INC",
+                   "BWR": "Best Wire",
+                   "BAP": "BUILDING AUTOMATION PRODUCTS, INC. (BAPI)",
+                   "CCS": "Contemporary Control Systems",
+                   "ISC": "Controlli",
+                   "DIS": "DISTECH CONTROLS",
+                   "DIV": "DIVERSITECH CORPORATION",
+                   "DWY": "DWYER INSTRUMENTS, INC.",
+                   "FIE": "FIREYE INC.",
+                   "FND": "FUNCTIONAL DEVICES, INC.",
+                   "CNA": "Genuine Cable Group (GCG) (Connect Air)",
+                   "GDR": "GOODRICH SALES INC.",
+                   "HTM": "HEAT-TIMER CORP",
+                   "HFE": "HOFFMAN ENCLOSURES INC.",
+                   "HWW": "HONEYWELL INC.",
+                   "HWI": "HONEYWELL INTERNATIONAL ECC US (HOFS)",
+                   "HWT": "HONEYWELL THERMAL SOLUTIONS",
+                   "ICM": "ICM",
+                   "IDC": "IDEC CORPORATION",
+                   "ICS": "Industrial Connections & Solutions, LLC",
+                   "JCI": "Johnson Controls Inc",
+                   "KLN": "Klein Tools, Inc.",
+                   "KMC": "Kreuter (KMC) Controls",
+                   "LUM": "Lumen Radio",
+                   "LYX": "LynxSpring Inc.",
+                   "MCO": "Macurco",
+                   "MXC": "Maxicap",
+                   "MAX": "MAXITROL COMPANY",
+                   "MXL": "Maxline",
+                   "NCG": "NU-CALGON WHOLESALER",
+                   "PHX": "Phoenix Contact USA, Inc.",
+                   "PLN": "PROLON",
+                   "RBS": "ROBERTSHAW CONTROLS COMPANY",
+                   "SAG": "SAGINAW CONTROL & ENGINEERING",
+                   "SCH": "SCHNEIDER ELECTRIC BUILDINGS AMERICAS, INC",
+                   "SEI": "Seitron",
+                   "SEN": "SENVA, INC.",
+                   "SET": "SETRA SYSTEMS, INC.",
+                   "SIE": "SIEMENS INDUSTRY, INC.",
+                   "SKY": "Skyfoundry",
+                   "SYS": "System Sensor",
+                   "TOS": "TOSIBOX, INC.",
+                   "VYK": "Tridium Inc.",
+                   "USM": "US Motor Nidec Motor Corp",
+                   "HWA": "VULCAIN ALARM DIVISION",
+                   "XYL": "Xylem",
+                   "YRK": "York Chiller Parts",
+                   "PFP": "Performance Pipe",
+                   "PER": "Periscope",
+                   "JNL": "J&L Manufacturing",
+                   "RFL": "NiagaraMod",
+                   "FUS": "Fuseco"
                    }
 
     # function for reading the files
@@ -65,25 +120,40 @@ class PBmapper():
     # needs the spl stripping function as well
     def modifier(self, company_df, pricing_df):
 
+        # Strip leading and trailing spaces from column names
+        pricing_df.columns = pricing_df.columns.str.strip()
+
         company_df.reset_index(drop=True, inplace=True)
+
+
+        pricing_df['Cost'] = pd.to_numeric(pricing_df['Cost'], errors='coerce').fillna(0.0)
+        pricing_df['List price'] = pd.to_numeric(pricing_df['List price'], errors='coerce').fillna(0.0)
+
+        # Convert 'Other_column' from int to string
+        company_df['supplier_part_no'] = company_df['supplier_part_no'].astype(str)
+        pricing_df["Supplier_part_no"] = pricing_df["Supplier_part_no"].astype(str)
+        
+        
         
         for index, row in company_df.iterrows():
-        
-            sspart_no = row["Supplier_part_number"]
+            #print(row)
+            sspart_no = row["supplier_part_no"]
             company_df.loc[index, "Stripped_supplier_PN"] = re.sub(r'[^a-zA-Z0-9\s]', "", sspart_no)
             
             # computing P1 price for already existing pricing
-            if ((company_df.loc[index, "Cost"] / 0.65) * 2) < company_df.loc[index, "List price"]:
-                company_df.loc[index, "P1"] = round(company_df.loc[index, "List price"], 2)
+            if ((company_df.loc[index, "Cost"] / 0.65) * 2) < company_df.loc[index, "LIST_PRICE"]:
+                company_df.loc[index, "P1"] = round(company_df.loc[index, "LIST_PRICE"], 2)
 
             else:
-                company_df.loc[index, "P1"] = round(((company_df.loc[index, "Cost"] / 0.65) * 2), 2)
+                company_df.loc[index, "P1"] = round((company_df.loc[index, "Cost"] / 0.65) * 2, 2)
 
         pricing_df.reset_index(drop=True, inplace=True)
 
-        print(pricing_df.head())
+        #print(pricing_df.head())
         for index, row in pricing_df.iterrows():
-            pricing_df.loc[index, "Stripped_supplier_PN"] = re.sub(r'[^a-zA-Z0-9\s]', "", row["Supplier_part_number"])
+            pricing_df.loc[index, "Stripped_supplier_PN"] = re.sub(r'[^a-zA-Z0-9\s]', "", str(row["Supplier_part_no"]))
+
+        print(pricing_df.head())
 
         return company_df, pricing_df
     
@@ -204,7 +274,7 @@ class PBmapper():
                 
                 company_df.loc[index, "Cost_check"] = "Matching" if row["Cost"] == company_df.loc[index, "Cost_on_vendors_PB"] else "Not matching"
                 company_df.loc[index, "P1_check"] = "Matching" if row["P1"] == company_df.loc[index, "P1_vendors_PB"] else "Not matching"
-                company_df.loc[index, "Listprice_check"] = "Matching" if row["List price"] == company_df.loc[index, "Listprice_on_vendors_PB"] else "Not matching"
+                company_df.loc[index, "Listprice_check"] = "Matching" if row["LIST_PRICE"] == company_df.loc[index, "Listprice_on_vendors_PB"] else "Not matching"
                 
                 # this is to check if the mismatch column
                 onvpb = company_df.loc[index, "on_vendor_price_book"]
@@ -303,7 +373,10 @@ class PBmapper():
         for company in company_folders_paths:
             company_path, pricing_path, company_prefix_name = mapperOB.read_folder(company)
 
-            print(f"This is the returned from function : {company_path}, {pricing_path}")
+            #print(f"This is the returned from function : {company_path}, {pricing_path}")
+
+            print(f"Doing this now : {company_prefix_name}")
+
             # read the files from the folder, and process it
             company_files, pricing_files = mapperOB.read_files(company_path, pricing_path)
             company_files, pricing_files = mapperOB.column_initiator(company_files, pricing_files)
@@ -311,7 +384,7 @@ class PBmapper():
             company_files, pricing_files = PBmapper.matching_logic(company_files, pricing_files, company_prefix_name)
 
 
-            dir_path = "D:\\Master data files" # specify the master directory here
+            dir_path = "D:\\Price_mapping_reports" # specify the master directory here
             company_prefix = company_prefix_name
 
             folders = [folder for folder in os.listdir(dir_path) if os.path.isdir(os.path.join(dir_path, folder))]

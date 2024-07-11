@@ -7,7 +7,7 @@ import logging
 import os
 import json
 import mailer
-
+import time
 
 dbname = 'BCS_items'
 user = 'postgres'
@@ -22,12 +22,12 @@ month =  current_time.strftime("%b")
 year = current_time.year
 
 
-table_name = "P21_companyreview"  # Replace with the actual table name
+table_name = "p21_companyreview"  # Replace with the actual table name
 output_file = f"D:\\Discrepancy files\\Price_matching_report_{day}_{month}_{year}.csv"  # Replace with the dedicated file path 
 
 
-def runner_main(folder_path, company_json_path):
-
+def runner_main(folder_path, company_json_path, new_loop_check):
+    
     mapper = pmauto.PBmapper()
     P21_files = mapper.main(folder_path, company_json_path)
 
@@ -56,19 +56,21 @@ def runner_main(folder_path, company_json_path):
     year = current_time.year
 
     # database table name and output file name
-    table_name = "P21_companyreview"
-    output_file = f"D:\\Discrepancy files\\Discrepancies - Price matching report {day}-{month}-{year}"
+    table_name = "p21_companyreview"
+    output_file = f"D:\\Price_mapping_discrepancies\\Discrepancies_Price_matching_report_{day}_{month}_{year}.csv"
 
 
     conn = pgs.connect_to_postgres(dbname, user, password, host, port)
-    pgs.read_data_into_table(conn, P21_files)
+    pgs.read_data_into_table(conn, P21_files, new_loop_check)
     pgs.export_table_to_csv(conn, table_name, output_file)
     conn.close()
 
-
+    attachment_display_name = f"Price_matching_discrepancies_report_{day}_{month}_{year}.csv"
     # Send mails to the recipients with the attachments
-    mailresult = mailer.send_email(output_file)
+    mailresult = mailer.send_email(output_file, attachment_display_name)
     
+    mailresult = True
+
     # give a final output
     if mailresult == True:
         print("Process fininshed. Mails have been sent with attachement!")
@@ -77,6 +79,8 @@ def runner_main(folder_path, company_json_path):
 # get the inputs of the file paths and store it in the json file
 
 if __name__ == "__main__":
+
+    start_time = time.time()
 
     parser = argparse.ArgumentParser(description= "Mapping company and pricing files")
     parser.add_argument("--folder_path", help="Give the master folder path", required=True)
@@ -98,7 +102,7 @@ if __name__ == "__main__":
         config_file = "D:\\Price_mapping_Automation\\config_file.json"
 
         # writting the empty file in config file json
-        with open(config_file, "r+") as cnf:
+        with open(config_file, "w") as cnf:
             cnfdata = {"P21_files":[]}
             json.dump(cnfdata, cnf, indent=4)
 
@@ -110,7 +114,13 @@ if __name__ == "__main__":
         raise ValueError("Automation information (new loop) not given!!")
     
     # run the main function
-    runner_main(folder_path, company_json_path)
+    runner_main(folder_path, company_json_path, new_loop_check)
+
+    end_time = (time.time() - start_time) /60
+    print("____________________________________________________________________")
+    print(" ")
+    print(f"Time taken : {end_time:2f} mins")
+    print("____________________________________________________________________")
 
     
 # use subprocess for running the scripts

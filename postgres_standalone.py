@@ -11,6 +11,13 @@ log_file = os.path.join("D:\\Price_mapping_automation\\Logging_information", f"P
 logging.basicConfig(filename=log_file, level=logging.DEBUG)
 
 
+dbname = 'BCS_items'
+user = 'postgres'
+password = 'post@BCS'
+host = 'localhost' 
+port = '5432'  # Default PostgreSQL port is 5432
+
+
 # Connect to your PostgreSQL database
 def connect_to_postgres(dbname, user, password, host, port):
     try:
@@ -121,36 +128,52 @@ def read_data_into_table(connection, P21_files, new_loop):
 
     cursor.close()
 
+             
+# export the csv from the database
+def export_table_to_csv(connection, table_name, output_file):
+    try:
+        cursor = connection.cursor()
+
+        with open(output_file, 'w', encoding='utf-8', newline='') as file:
+            csv_writer = csv.writer(file)
+
+                        
+            # Fetch data from the table and column headers
+            cursor.execute(f"SELECT * FROM {table_name}")
+            rows = cursor.fetchall()
+            column_names = [desc[0] for desc in cursor.description]
             
-    # export the csv from the database
-    def export_table_to_csv(connection, table_name, output_file):
-        try:
-            cursor = connection.cursor()
+            # Write column headers
+            csv_writer.writerow(column_names)
 
-            with open(output_file, 'w', encoding='utf-8', newline='') as file:
-                csv_writer = csv.writer(file)
+            # Write rows
+            for row in rows:
+                csv_writer.writerow([
+                    str(cell).encode('utf-8', errors='replace').decode('utf-8').replace('?', 'Error character')
+                    for cell in row
+                ])
 
-                            
-                # Fetch data from the table and column headers
-                cursor.execute(f"SELECT * FROM {table_name}")
-                rows = cursor.fetchall()
-                column_names = [desc[0] for desc in cursor.description]
-                
-                # Write column headers
-                csv_writer.writerow(column_names)
+    except psycopg2.Error as e:
+        logging.error(f"Error exporting data from table '{table_name}' to CSV file")
+        logging.error(e)
 
-                # Write rows
-                for row in rows:
-                    csv_writer.writerow([
-                        str(cell).encode('utf-8', errors='replace').decode('utf-8').replace('?', 'Error character')
-                        for cell in row
-                    ])
-                    
-        except psycopg2.Error as e:
-            logging.error(f"Error exporting data from table '{table_name}' to CSV file")
-            logging.error(e)
-
-            raise ValueError(e)
+        raise ValueError(e)
 
 
 
+if __name__ == "__main__":
+
+    current_time = datetime.now()
+    day = current_time.day
+    month = current_time.strftime("%b")
+    year = current_time.year
+
+
+    # database table name and output file name
+    table_name = "p21_companyreview"
+    output_file = f"D:\\Price_mapping_discrepancies\\Discrepancies_Price_matching_report_{day}_{month}_{year}.csv"
+
+    conn = connect_to_postgres(dbname, user, password, host, port)
+    #read_data_into_table(conn, P21_files, new_loop_check)
+    export_table_to_csv(conn, table_name, output_file)
+    conn.close()
