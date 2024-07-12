@@ -67,7 +67,7 @@ def runner_main(folder_path, company_json_path, new_loop_check):
 
     attachment_display_name = f"Price_matching_discrepancies_report_{day}_{month}_{year}.csv"
     # Send mails to the recipients with the attachments
-    mailresult = mailer.send_email(output_file, attachment_display_name)
+    #mailresult = mailer.send_email(output_file, attachment_display_name)
     
     mailresult = True
 

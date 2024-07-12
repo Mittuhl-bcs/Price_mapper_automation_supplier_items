@@ -62,3 +62,7 @@ The four parameters:
 
 <br>
 Execute this script with the master folder path (the folder has company specific folders inside which there are pricing and review files) and the json file having the finished list of companies. add the new loop and mail checks with thier necessesities.
+
+
+folder-path : the folder which contains the supplier pricing files, with a prefix as "PB" (the automation folder from which the data is read and processed and saved into another folder)
+companies.json : the file where the prefixes of all the companies that are processed are stored. If it is a new loop then the whole list is deleted.

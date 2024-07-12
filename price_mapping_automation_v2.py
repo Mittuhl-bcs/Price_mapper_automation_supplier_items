@@ -139,6 +139,8 @@ class PBmapper():
             #print(row)
             sspart_no = row["supplier_part_no"]
             company_df.loc[index, "Stripped_supplier_PN"] = re.sub(r'[^a-zA-Z0-9\s]', "", sspart_no)
+
+
             
             # computing P1 price for already existing pricing
             if ((company_df.loc[index, "Cost"] / 0.65) * 2) < company_df.loc[index, "LIST_PRICE"]:
@@ -239,6 +241,8 @@ class PBmapper():
             # initiating discrepany list
             discrepancy_type = []
 
+            discrepancy_flag = 0
+
             # check the prefix
             for prefix, company_name in PBmapper.prefix_name.items():
                 if sspart_no.startswith(prefix):    # spart_no[3]
@@ -280,7 +284,7 @@ class PBmapper():
                 onvpb = company_df.loc[index, "on_vendor_price_book"]
                 onlpb = company_df.loc[index, "On_latest_vendorprice_book"]
                 
-                if onvpb:
+                if pd.notnull(onvpb):
                     if onvpb == "N":
                         if onlpb == "No":
                             company_df.loc[index, "Mismatch_check"] = "Matching"
@@ -299,6 +303,7 @@ class PBmapper():
             else:
                 company_df.loc[index, "Matched_pricingdoc_SPN"] = "Not available"
                 company_df.loc[index, "On_latest_vendorprice_book"] = "No"
+                company_df.loc[index, "Mismatch_check"] = "No data available"
                 company_df.loc[index, "Cost_on_vendors_PB"] = "Not available"
                 company_df.loc[index, "Listprice_on_vendors_PB"] = "Not available"
                 company_df.loc[index, "P1_vendors_PB"] = "Not available"
@@ -306,7 +311,7 @@ class PBmapper():
                 company_df.loc[index, "P1_check"] = "Not available"
                 company_df.loc[index, "Listprice_check"] = "Not available"
 
-            discrepancy_flag = 0 
+             
             # recording the discrepany column
             if company_df.loc[index, "Matched_pricingdoc_SPN"] == "Not available":
                 discrepancy_type.append("Matching SPN")
@@ -331,6 +336,7 @@ class PBmapper():
                 discrepancy_type.append("checkers not available")
                 discrepancy_flag = 1
 
+            # to combine all the discrepancies
             if discrepancy_flag == 0:
                 discrepancy_type.append("All right")
                 discrepancy_col = "All right"
