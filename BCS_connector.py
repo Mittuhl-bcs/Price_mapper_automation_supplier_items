@@ -73,6 +73,7 @@ def reader_df(supplier_id):
 	WHERE
 	p21_item_view.supplier_id IN ({str(supplier_id)})
 	AND p21_item_view.delete_flag = 'N'
+    AND supplier_ud.item_prefix = LEFT(p21_item_view.item_id, 3)
 
 	GROUP BY
 	p21_item_view.item_id,

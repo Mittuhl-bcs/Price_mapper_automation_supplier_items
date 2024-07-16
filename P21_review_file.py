@@ -53,7 +53,9 @@ def p21_reader(supplier_id):
     LEFT JOIN inv_mast_ud ON p21_item_view.inv_mast_uid = inv_mast_ud.inv_mast_uid
     LEFT JOIN total_inv ON p21_item_view.inv_mast_uid = total_inv.inv_mast_uid
     WHERE p21_item_view.supplier_id IN ({str(supplier_id)})
-      AND p21_item_view.delete_flag = 'N'
+    AND p21_item_view.delete_flag = 'N'
+    AND supplier_ud.item_prefix = LEFT(p21_item_view.item_id, 3)
+
     GROUP BY
         p21_item_view.item_id,
         p21_item_view.item_desc,
