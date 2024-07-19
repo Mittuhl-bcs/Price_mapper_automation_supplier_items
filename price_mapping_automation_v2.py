@@ -260,6 +260,9 @@ class PBmapper():
 
             # check for the match
             matched_item = pricing_df[pricing_df["Stripped_supplier_PN"] == sspart_no]
+            if len(matched_item) > 1:
+                print(matched_item)
+                raise ValueError(f"More than one rows for SPN = {sspart_no}")
             if not matched_item.empty:
                 company_df.loc[index, "Matched_pricingdoc_SPN"] = sspart_no
                 company_df.loc[index, "On_latest_vendorprice_book"] = "Yes"
