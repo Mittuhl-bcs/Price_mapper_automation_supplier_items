@@ -4,6 +4,9 @@ from datetime import datetime
 import os
 import csv
 import pandas as pd
+import time
+import openpyxl
+
 
 current_time = datetime.now()
 fcurrent_time = current_time.strftime("%Y-%m-%d-%H-%M-%S")
@@ -123,7 +126,7 @@ def read_data_into_table(connection, P21_files, new_loop):
 
             
 # export the csv from the database
-def export_table_to_csv(connection, table_name, output_file):
+def export_table_to_csv(connection, table_name, output_file, excel_output_file):
     try:
         cursor = connection.cursor()
 
@@ -145,7 +148,25 @@ def export_table_to_csv(connection, table_name, output_file):
                     str(cell).encode('utf-8', errors='replace').decode('utf-8').replace('?', 'Error character')
                     for cell in row
                 ])
-                
+        
+        time.sleep(2)
+
+        tempdf = pd.read_csv(output_file)
+        sup_prefixes = tempdf["prefix"].unique().tolist()
+
+        # Create an Excel writer object
+        writer = pd.ExcelWriter(excel_output_file, engine='openpyxl')
+        
+        
+        for prefix in sup_prefixes:
+            tempdf_1 = tempdf[tempdf["prefix"] == prefix]
+
+            # write the contents of the data into each of the sheet
+            tempdf_1.to_excel(writer, sheet_name=prefix, index=False)
+
+        print("Formatted Excel file saved !!")
+
+
     except psycopg2.Error as e:
         logging.error(f"Error exporting data from table '{table_name}' to CSV file")
         logging.error(e)

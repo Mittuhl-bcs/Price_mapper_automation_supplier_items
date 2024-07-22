@@ -58,11 +58,12 @@ def runner_main(folder_path, company_json_path, new_loop_check):
     # database table name and output file name
     table_name = "p21_companyreview"
     output_file = f"D:\\Price_mapping_discrepancies\\Discrepancies_Price_matching_report_{day}_{month}_{year}.csv"
+    excel_output_file = f"D:\\Price_mapping_discrepancies\\Formatted_Discrepancies_Price_matching_report_{day}_{month}_{year}.xlsx"
 
 
     conn = pgs.connect_to_postgres(dbname, user, password, host, port)
     pgs.read_data_into_table(conn, P21_files, new_loop_check)
-    pgs.export_table_to_csv(conn, table_name, output_file)
+    pgs.export_table_to_csv(conn, table_name, output_file, excel_output_file)
     conn.close()
 
     attachment_display_name = f"Price_matching_discrepancies_report_{day}_{month}_{year}.csv"
