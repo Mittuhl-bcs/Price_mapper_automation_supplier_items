@@ -155,15 +155,16 @@ def export_table_to_csv(connection, table_name, output_file, excel_output_file):
         sup_prefixes = tempdf["prefix"].unique().tolist()
 
         # Create an Excel writer object
-        writer = pd.ExcelWriter(excel_output_file, engine='openpyxl')
+        with pd.ExcelWriter(excel_output_file, engine='openpyxl') as writer:
         
         
-        for prefix in sup_prefixes:
-            tempdf_1 = tempdf[tempdf["prefix"] == prefix]
+            for prefix in sup_prefixes:
+                tempdf_1 = tempdf[tempdf["prefix"] == prefix]
 
-            # write the contents of the data into each of the sheet
-            tempdf_1.to_excel(writer, sheet_name=prefix, index=False)
+                # write the contents of the data into each of the sheet
+                tempdf_1.to_excel(writer, sheet_name=prefix, index=False)
 
+        
         print("Formatted Excel file saved !!")
 
 

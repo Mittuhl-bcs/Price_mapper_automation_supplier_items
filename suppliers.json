@@ -299,4 +299,9 @@
         "prefix": "FUS",
         "supplier_name": "Fuseco"
     }
+    {
+        "supplier_id": "134007",
+        "prefix": "J2I",
+        "supplier_name": "J2Inn"
+    }
 ]
