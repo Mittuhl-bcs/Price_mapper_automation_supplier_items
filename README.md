@@ -66,3 +66,10 @@ Execute this script with the master folder path (the folder has company specific
 
 folder-path : the folder which contains the supplier pricing files, with a prefix as "PB" (the automation folder from which the data is read and processed and saved into another folder)
 companies.json : the file where the prefixes of all the companies that are processed are stored. If it is a new loop then the whole list is deleted.
+
+
+example:
+
+```
+ python runner_v2.py --folder_path "D:\Price mapping files - Onedrive setup" --company_json_path "D:\Price_mapping_automation\companies.json" --new_loop "yes" --mail "yes"                                                                                                          
+```
