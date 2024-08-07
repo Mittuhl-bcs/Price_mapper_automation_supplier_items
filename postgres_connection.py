@@ -83,6 +83,7 @@ def read_data_into_table(connection, P21_files, new_loop):
         p1p21 = row["P1"]
         """
 
+        item_id = row["item_id"]
         prefix = row["Prefix_of_company"]
         supplier_part_number = row["supplier_part_no"]
         stripped_SPN = row["Stripped_supplier_PN"]
@@ -107,14 +108,14 @@ def read_data_into_table(connection, P21_files, new_loop):
         
 
         # SQL query to insert data into the table
-        sql = """INSERT INTO p21_companyreview (prefix, supplier_part_number, stripped_spn, matched_pricingdoc_SPN, prefix_check,
+        sql = """INSERT INTO p21_companyreview (item_id, prefix, supplier_part_number, stripped_spn, matched_pricingdoc_SPN, prefix_check,
                 on_vendor_price_book, on_latest_price_book, pb_check, cost, p1, list_price, cost_on_vendorPB,
                 p1_on_vendorPB, list_price_on_vendorPB, cost_check, p1_check, listprice_check, discrepancy_types)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
         
         
         # Execute the SQL query with the data from the current row
-        cursor.execute(sql, (prefix, supplier_part_number, stripped_SPN, matched_pricingdoc_SPN, prefix_check, on_vendor_price_book,
+        cursor.execute(sql, (item_id, prefix, supplier_part_number, stripped_SPN, matched_pricingdoc_SPN, prefix_check, on_vendor_price_book,
                         on_latest_price_book, pb_check, cost, p1, list_price, cost_on_vendorPB, p1_on_vendorPB,
                         list_price_on_vendorPB, cost_check, p1_check, listprice_check, discrepancy_types))
     

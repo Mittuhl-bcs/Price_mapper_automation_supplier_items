@@ -236,16 +236,23 @@ class PBmapper():
 
         # iterring over company df
         for index, row in company_df.iterrows():
-            sspart_no = row["Stripped_supplier_PN"]
+            item_id = row["item_id"]     # replacement: should be item_id instead of supplier_part_no
 
             # initiating discrepany list
             discrepancy_type = []
 
             discrepancy_flag = 0
 
+            possible_prefix = item_id[:3]
+
+            # read the supplier.json
+            with open("D:\\Price_mapping_automation\\suppliers.json",  "r+") as suppliers_info:
+                suppliers_info_data = json.load(suppliers_info)
+                company_prefixes = suppliers_info_data["prefix"]
+
             # check the prefix
-            for prefix, company_name in PBmapper.prefix_name.items():
-                if sspart_no.startswith(prefix):    # spart_no[3]
+            for prefix in company_prefixes:   # replace the suppliers from the suppliers.json file
+                if possible_prefix.startswith(prefix):    # spart_no[3]
                     if prefix == company_prefix:
                         company_df.loc[index, "Prefix_check"] = "Same company prefix"
                     else:
@@ -354,7 +361,7 @@ class PBmapper():
 
         # ittering over pricing rows
         for i, r in pricing_df.iterrows():
-            sspart_no = r["Stripped_supplier_PN"]
+            sspart_no = r["Stripped_supplier_PN"]   
 
             matched_item = company_df[company_df["Stripped_supplier_PN"] == sspart_no]
             
