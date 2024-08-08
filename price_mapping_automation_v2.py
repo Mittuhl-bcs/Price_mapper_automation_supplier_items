@@ -232,7 +232,7 @@ class PBmapper():
 
     # function for implementing logic
     @staticmethod
-    def matching_logic(company_df, pricing_df, company_prefix):
+    def matching_logic(company_df, pricing_df, company_prefix, company_prefixes):
 
         # iterring over company df
         for index, row in company_df.iterrows():
@@ -245,26 +245,30 @@ class PBmapper():
 
             possible_prefix = item_id[:3]
 
-            # read the supplier.json
-            with open("D:\\Price_mapping_automation\\suppliers.json",  "r+") as suppliers_info:
-                suppliers_info_data = json.load(suppliers_info)
-                company_prefixes = suppliers_info_data["prefix"]
+            #print(company_prefixes)
+
+            prefix_found_flag = 0
 
             # check the prefix
             for prefix in company_prefixes:   # replace the suppliers from the suppliers.json file
                 if possible_prefix.startswith(prefix):    # spart_no[3]
+
+                    prefix_found_flag = 1
                     if prefix == company_prefix:
                         company_df.loc[index, "Prefix_check"] = "Same company prefix"
                     else:
                         company_df.loc[index, "Prefix_check"] = "Other company prefix"
-                else:
-                    company_df.loc[index, "Prefix_check"] = "No prefix"
+                    
+                    break
+                
+            if prefix_found_flag == 0:
+                company_df.loc[index, "Prefix_check"] = "No prefix"
 
             
             # Company prefix in the company prefix column
             company_df.loc[index, "Prefix_of_company"] = company_prefix
 
-
+            sspart_no = row["supplier_part_no"]
             # check for the match
             matched_item = pricing_df[pricing_df["Stripped_supplier_PN"] == sspart_no]
             if len(matched_item) > 1:
@@ -398,7 +402,13 @@ class PBmapper():
         # for saving all the processed company folders
         P21_files = []
 
-        
+        # Open and load the JSON file
+        with open("D:\\Price_mapping_automation\\suppliers.json", "r") as suppliers_info:
+            suppliers_data = json.load(suppliers_info)
+
+        # Extract all prefixes into a list
+        company_prefixes = [supplier["prefix"] for supplier in suppliers_data]
+
 
         # get into each of the folder and read the files
         for company in company_folders_paths:
@@ -412,7 +422,7 @@ class PBmapper():
             company_files, pricing_files = mapperOB.read_files(company_path, pricing_path)
             company_files, pricing_files = mapperOB.column_initiator(company_files, pricing_files)
             company_files, pricing_files = mapperOB.modifier(company_files, pricing_files)
-            company_files, pricing_files = PBmapper.matching_logic(company_files, pricing_files, company_prefix_name)
+            company_files, pricing_files = PBmapper.matching_logic(company_files, pricing_files, company_prefix_name, company_prefixes)
 
 
             dir_path = "D:\\Price_mapping_reports" # specify the master directory here
