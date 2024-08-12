@@ -1,6 +1,7 @@
 # this is main file that will be used for running other files for DB connection, data processing
 import postgres_connection as pgs
 import price_mapping_automation_v2 as pmauto
+import postgres_stats_update as pgsstats
 from datetime import datetime 
 import argparse, sys
 import logging
@@ -64,6 +65,11 @@ def runner_main(folder_path, company_json_path, new_loop_check):
     conn = pgs.connect_to_postgres(dbname, user, password, host, port)
     pgs.read_data_into_table(conn, P21_files, new_loop_check)
     pgs.export_table_to_csv(conn, table_name, output_file, excel_output_file)
+    conn_stat = pgsstats.connect_to_postgres
+
+    # read the stats into the stats table
+    pgsstats.read_data_into_table(conn_stat, output_file)
+    conn_stat.close()
     conn.close()
 
     attachment_display_name = f"Price_matching_discrepancies_report_{day}_{month}_{year}.csv"

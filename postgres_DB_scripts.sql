@@ -1,3 +1,24 @@
-create table P21_companyreview (item_id varchar(20), prefix varchar(20), supplier_part_number varchar(60), stripped_spn varchar(60), matched_pricingdoc_SPN varchar(60), prefix_check varchar(20), on_vendor_price_book varchar (10), on_latest_price_book varchar(20), pb_check varchar(20), cost varchar(20), p1 varchar(20), list_price varchar(20), cost_on_vendorPB varchar(20), p1_on_vendorPB varchar(20), list_price_on_vendorPB varchar(20), cost_check varchar(20), p1_check varchar(20), listprice_check varchar(20), discrepancy_types varchar(150))
+CREATE TABLE P21_companyreview (
+    item_id VARCHAR(200),
+    prefix VARCHAR(200),
+    supplier_part_number VARCHAR(200),
+    stripped_spn VARCHAR(200),
+    matched_pricingdoc_SPN VARCHAR(200),
+    prefix_check VARCHAR(200),
+    on_vendor_price_book VARCHAR(200),
+    on_latest_price_book VARCHAR(200),
+    pb_check VARCHAR(200),
+    cost VARCHAR(200),
+    p1 VARCHAR(200),
+    list_price VARCHAR(200),
+    cost_on_vendorPB VARCHAR(200),
+    p1_on_vendorPB VARCHAR(200),
+    list_price_on_vendorPB VARCHAR(200),
+    cost_check VARCHAR(200),
+    p1_check VARCHAR(200),
+    listprice_check VARCHAR(200),
+    discrepancy_types VARCHAR(200)
+);
+
 
 create table Pricingreview (supplier_part_number varchar(60), matched_pricingdoc_SPN varchar(60), on_vendor_price_book varchar (10), cost float, p1 float, list_price float)
