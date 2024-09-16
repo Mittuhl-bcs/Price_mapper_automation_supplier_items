@@ -35,12 +35,18 @@ def connect_to_postgres(dbname, user, password, host, port):
 
 def read_data_into_table(connection, files):
     # replace the company_df with P21_folder
-     
+    
+    # Ensure files is a list of file paths
+    if isinstance(files, str):
+        files = [files]
+    
+    print(files)
+
     cursor = connection.cursor()
 
     # read the folder and the files in it
     for i in files:
-        company_df = pd.read_excel(i)
+        company_df = pd.read_csv(i)
 
     
         now = datetime.now()
@@ -66,7 +72,7 @@ def read_data_into_table(connection, files):
         
 
         # SQL query to insert data into the table
-        sql = """INSERT INTO p21_companyreview (date_, week, weekday, filename, count_of_rows)
+        sql = """INSERT INTO report_stats (date_, week, weekday, filename, count_of_rows)
                 VALUES (%s, %s, %s, %s, %s)"""
         
         

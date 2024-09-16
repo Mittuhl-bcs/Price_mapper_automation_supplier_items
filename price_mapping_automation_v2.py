@@ -79,7 +79,13 @@ class PBmapper():
                    "PER": "Periscope",
                    "JNL": "J&L Manufacturing",
                    "RFL": "NiagaraMod",
-                   "FUS": "Fuseco"
+                   "FUS": "Fuseco",
+                   "J2I": "J2Inn",
+                   #"MAX": "MAXITROL COMPANY",
+                   "SAS": "Spreecher & Shuh",
+                   "SCC": "Siemens Combustion (SCC)",
+                   "PIE": "Pietro",
+                   "IOH": "IO HVAC"
                    }
 
     # function for reading the files
@@ -270,7 +276,7 @@ class PBmapper():
 
             sspart_no = row["supplier_part_no"]
             # check for the match
-            matched_item = pricing_df[pricing_df["Stripped_supplier_PN"] == sspart_no]
+            matched_item = pricing_df[pricing_df["Supplier_part_no"] == sspart_no] # checking unstripped SPN with SPN on price book file
             if len(matched_item) > 1:
                 print(matched_item)
             #    raise ValueError(f"More than one rows for SPN = {sspart_no}")

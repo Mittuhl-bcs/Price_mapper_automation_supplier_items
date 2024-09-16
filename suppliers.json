@@ -303,5 +303,25 @@
         "supplier_id": "134007",
         "prefix": "J2I",
         "supplier_name": "J2Inn"
+    },
+    {
+        "supplier_id": "134385",
+        "prefix": "SAS",
+        "supplier_name": "Spreecher & Shuh"
+    },
+    {
+        "supplier_id": "175110",
+        "prefix": "SCC",
+        "supplier_name": "Siemens Combustion (SCC)"
+    },
+    {
+        "supplier_id": "175057",
+        "prefix": "PIE",
+        "supplier_name": "Pietro"
+    },
+    {
+        "supplier_id": "134269",
+        "prefix": "IOH",
+        "supplier_name": "IO HVAC"
     }
 ]

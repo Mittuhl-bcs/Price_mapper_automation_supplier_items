@@ -9,6 +9,7 @@ import os
 import json
 import mailer
 import time
+import subprocess
 
 dbname = 'BCS_items'
 user = 'postgres'
@@ -27,8 +28,25 @@ table_name = "p21_companyreview"  # Replace with the actual table name
 output_file = f"D:\\Discrepancy files\\Price_matching_report_{day}_{month}_{year}.csv"  # Replace with the dedicated file path 
 
 
+def run_script(script_name):
+    try:
+        # Run the script using subprocess.run() to capture output and errors
+        result = subprocess.run(['python', script_name], capture_output=True, text=True)
+        
+        # Print the output and errors, if any
+        print(f"Output of {script_name}:\n{result.stdout}")
+        if result.stderr:
+            print(f"Error in {script_name}:\n{result.stderr}")
+    except Exception as e:
+        print(f"Failed to run {script_name}: {e}")
+
+
 def runner_main(folder_path, company_json_path, new_loop_check):
-    
+
+    # Running the two scripts
+    run_script('deletion_code.py')
+    run_script('P21_review_file.py')
+        
     mapper = pmauto.PBmapper()
     P21_files = mapper.main(folder_path, company_json_path)
 
@@ -65,12 +83,15 @@ def runner_main(folder_path, company_json_path, new_loop_check):
     conn = pgs.connect_to_postgres(dbname, user, password, host, port)
     pgs.read_data_into_table(conn, P21_files, new_loop_check)
     pgs.export_table_to_csv(conn, table_name, output_file, excel_output_file)
-    conn_stat = pgsstats.connect_to_postgres
+
+    conn.close()
+    
+    conn_stat = pgsstats.connect_to_postgres(dbname, user, password, host, port)
 
     # read the stats into the stats table
     pgsstats.read_data_into_table(conn_stat, output_file)
     conn_stat.close()
-    conn.close()
+    
 
     attachment_display_name = f"Price_matching_discrepancies_report_{day}_{month}_{year}.csv"
     # Send mails to the recipients with the attachments
