@@ -81,7 +81,7 @@ class PBmapper():
                    "RFL": "NiagaraMod",
                    "FUS": "Fuseco",
                    "J2I": "J2Inn",
-                   #"MAX": "MAXITROL COMPANY",
+                   "MAX": "MAXITROL COMPANY",
                    "SAS": "Spreecher & Shuh",
                    "SCC": "Siemens Combustion (SCC)",
                    "PIE": "Pietro",
@@ -146,8 +146,7 @@ class PBmapper():
             sspart_no = row["supplier_part_no"]
             company_df.loc[index, "Stripped_supplier_PN"] = re.sub(r'[^a-zA-Z0-9\s]', "", sspart_no)
 
-
-            
+                   
             # computing P1 price for already existing pricing
             if ((company_df.loc[index, "Cost"] / 0.65) * 2) < company_df.loc[index, "LIST_PRICE"]:
                 company_df.loc[index, "P1"] = round(company_df.loc[index, "LIST_PRICE"], 2)
@@ -290,16 +289,16 @@ class PBmapper():
 
                 # computing P1 comparison (vendor) pricing
                 p1_vendor = round((cost / 0.65) * 2, 2)
-
+                
                 if p1_vendor < round(company_df.loc[index, "Listprice_on_vendors_PB"], 2):
                     company_df.loc[index, "P1_vendors_PB"] = round(company_df.loc[index, "Listprice_on_vendors_PB"], 2)
                 else:
                     company_df.loc[index, "P1_vendors_PB"] = p1_vendor
 
                 
-                company_df.loc[index, "Cost_check"] = "Matching" if row["Cost"] == company_df.loc[index, "Cost_on_vendors_PB"] else "Not matching"
-                company_df.loc[index, "P1_check"] = "Matching" if row["P1"] == company_df.loc[index, "P1_vendors_PB"] else "Not matching"
-                company_df.loc[index, "Listprice_check"] = "Matching" if row["LIST_PRICE"] == company_df.loc[index, "Listprice_on_vendors_PB"] else "Not matching"
+                company_df.loc[index, "Cost_check"] = "Matching" if abs(round(row["Cost"], 2) - round(company_df.loc[index, "Cost_on_vendors_PB"], 2)) <= 0.01 else "Not matching"
+                company_df.loc[index, "P1_check"] = "Matching" if abs(round(row["P1"], 2) - round(company_df.loc[index, "P1_vendors_PB"], 2)) <= 0.05 else "Not matching"
+                company_df.loc[index, "Listprice_check"] = "Matching" if abs(round(row["LIST_PRICE"], 2) - round(company_df.loc[index, "Listprice_on_vendors_PB"], 2)) <= 0.01 else "Not matching"
                 
                 # this is to check if the mismatch column
                 onvpb = company_df.loc[index, "on_vendor_price_book"]
@@ -444,7 +443,7 @@ class PBmapper():
                 company_name = PBmapper.prefix_name[company_prefix]
             
             else:
-                raise ValueError("Prefix not found in the dictionary !!")
+                raise ValueError(f"Prefix ({company_prefix}) not found in the dictionary !!")
             
 
             # Iterate through the folders to find the one starting with the given three letters

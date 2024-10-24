@@ -56,6 +56,8 @@ def read_data_into_table(connection, P21_files, new_loop):
         
         # filter only the discrepancy ones
         df = company_df[company_df["Discrepancy_type"] != "All right"]
+        df = df[df["Discrepancy_type"] != "Matching SPN"]
+        df = df[df["on_vendor_price_book"] != "N"]
         
         # save only the discrepancies in this df and concat the main df
         main_df = pd.concat([main_df, df], ignore_index=True)

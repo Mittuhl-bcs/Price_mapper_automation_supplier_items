@@ -9,9 +9,7 @@ import os
 import pyodbc
 
 
-
-def p21_reader(supplier_id):
-    
+def connector():
     server = "10.240.1.129"
     database = "asp_BUILDCONT"
     username = "buildcont_reports"
@@ -21,6 +19,11 @@ def p21_reader(supplier_id):
     connection_string = f"DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE={database};UID={username};PWD={password}"
     connection = pyodbc.connect(connection_string)
 
+    return connection
+
+
+def p21_reader(supplier_id, connection):
+    
     print("Connected to the BCS SSMS database!!")
 
     query = f"""
@@ -80,6 +83,7 @@ def p21_reader(supplier_id):
 
     # read data into DataFrame
     df = pd.read_sql_query(query, connection)
+
     return df
 
 
@@ -114,6 +118,9 @@ def main(folder_path):
 
     company_folders_paths = folder_paths
 
+
+    connection = connector()
+
     # iterate over each of the company folder paths and read p21 data into excel files of the company
     for company in company_folders_paths:
         # get the base folder name and extract the first three letters as prefix
@@ -126,7 +133,7 @@ def main(folder_path):
                 sup_id = supplier["supplier_id"]
                 break
 
-        df = p21_reader(sup_id)
+        df = p21_reader(sup_id, connection)
         print(df.head())
 
         current_time = datetime.now()
@@ -136,6 +143,7 @@ def main(folder_path):
         
         df.to_excel(f"{company}\\{excel_sheet_name}_{day}_{month}_{year}.xlsx", sheet_name="Worked", index=False)
 
+    connection.close()
 
 
 
