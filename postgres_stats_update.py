@@ -57,6 +57,9 @@ def read_data_into_table(connection, files):
         base_filename = former_filename.split('{')[0]  # Split on '{' and take the first part
         base_filename = base_filename.rstrip('_')  # Remove any trailing underscores
 
+        # Get current time
+        current_time = datetime.now()
+        formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
 
         # Extract date part and calculate week and weekday
         date_str = now.date()
@@ -66,18 +69,28 @@ def read_data_into_table(connection, files):
         filename = base_filename  # get the i and then extract just the filename
         rowcount = len(company_df)  
         
+        if "Orange - Price" in base_filename:
+            category = "Orange - Price"
+        elif "Secondary Orange items - standard" in base_filename:
+            category = "Orange - Standard (secondary)"
+        elif "Orange items - standard" in base_filename:
+            category = "Orange - Standard (primary)"
+
+        else:
+            raise ValueError 
+        
         # add the other columns that are needed to be a part of the SQL database as well 
 
         #print(prefix)
         
 
         # SQL query to insert data into the table
-        sql = """INSERT INTO report_stats (date_, week, weekday, filename, count_of_rows)
-                VALUES (%s, %s, %s, %s, %s)"""
+        sql = """INSERT INTO report_stats (date_, week, weekday, filename, count_of_rows, category, time_created)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)"""
         
         
         # Execute the SQL query with the data from the current row
-        cursor.execute(sql, (date_str, week_number, weekday_number, filename, rowcount))
+        cursor.execute(sql, (date_str, week_number, weekday_number, filename, rowcount, category, formatted_time))
     
     
     # Commit the transaction

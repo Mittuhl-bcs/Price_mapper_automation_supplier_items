@@ -7,6 +7,8 @@ import price_mapping_automation_v2 as pmauto
 from datetime import datetime
 import os
 import pyodbc
+import time
+
 
 
 def connector():
@@ -87,6 +89,33 @@ def p21_reader(supplier_id, connection):
     return df
 
 
+# Function to check if file is fully written and synced
+def is_file_uploaded(file_path, last_modified_time):
+    timeout = 30  # Timeout for waiting (in seconds)
+    elapsed_time = 0
+
+    while elapsed_time < timeout:
+        try:
+            # Check if the file exists and is accessible
+            if os.path.exists(file_path):
+                # Get the current file modification time
+                current_modified_time = os.path.getmtime(file_path)
+
+                # If the modification time is close to our expected time, the file is likely uploaded
+                if abs(current_modified_time - last_modified_time) < 25:
+                    return True
+
+            # File is either not accessible or hasn't been synced yet, wait for a bit
+            time.sleep(1)
+            elapsed_time += 1
+
+        except IOError:
+            # The file might be locked or still being uploaded, continue retrying
+            time.sleep(1)
+            elapsed_time += 1
+
+    return False
+
 
 def main(folder_path):
     # get the suppliers file
@@ -119,6 +148,7 @@ def main(folder_path):
     company_folders_paths = folder_paths
 
 
+    # Get the connection from the driver
     connection = connector()
 
     # iterate over each of the company folder paths and read p21 data into excel files of the company
@@ -142,7 +172,19 @@ def main(folder_path):
         year = current_time.year
         
         df.to_excel(f"{company}\\{excel_sheet_name}_{day}_{month}_{year}.xlsx", sheet_name="Worked", index=False)
+        file_path = f"{company}\\{excel_sheet_name}_{day}_{month}_{year}.xlsx"
 
+        last_modified_time = os.path.getmtime(file_path)
+
+        # Check if the file is uploaded and ready
+        if is_file_uploaded(file_path, last_modified_time):
+            print(f"File {file_path} is ready and uploaded.")
+        else:
+            print(f"File {file_path} wasn't fully uploaded after waiting. Proceeding anyway.")
+    
+
+    
+    # Close the connection after use
     connection.close()
 
 
@@ -150,5 +192,4 @@ def main(folder_path):
 if __name__ == "__main__":
     
     folder_path = "D:\\Price mapping files - Onedrive setup"
- 
     main(folder_path)

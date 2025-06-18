@@ -112,7 +112,7 @@ def read_data_into_table(connection, P21_files, new_loop):
         # SQL query to insert data into the table
         sql = """INSERT INTO p21_companyreview (item_id, prefix, supplier_part_number, stripped_spn, matched_pricingdoc_SPN, prefix_check,
                 on_vendor_price_book, on_latest_price_book, pb_check, cost, p1, list_price, cost_on_vendorPB,
-                p1_on_vendorPB, list_price_on_vendorPB, cost_check, p1_check, listprice_check, discrepancy_types)
+                p1_on_vendorPB, list_price_on_vendorPB, cost_check, p1_check, listprice_check, discrepancy_type)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
         
         

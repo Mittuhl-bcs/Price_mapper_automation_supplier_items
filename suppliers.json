@@ -25,11 +25,6 @@
         "supplier_name": "Apollo-Fire"
     },
     {
-        "supplier_id": "133472",
-        "prefix": "ASC",
-        "supplier_name": "ASCO L.P."
-    },
-    {
         "supplier_id": "183570",
         "prefix": "ASI",
         "supplier_name": "ASI Controls"
@@ -135,11 +130,6 @@
         "supplier_name": "IDEC CORPORATION"
     },
     {
-        "supplier_id": "183716",
-        "prefix": "ICS",
-        "supplier_name": "Industrial Connections & Solutions, LLC"
-    },
-    {
         "supplier_id": "134012",
         "prefix": "JCI",
         "supplier_name": "Johnson Controls Inc"
@@ -175,11 +165,6 @@
         "supplier_name": "Maxicap"
     },
     {
-        "supplier_id": "175097",
-        "prefix": "MAX",
-        "supplier_name": "MAXITROL COMPANY"
-    },
-    {
         "supplier_id": "134086",
         "prefix": "MXL",
         "supplier_name": "Maxline"
@@ -200,7 +185,7 @@
         "supplier_name": "PROLON"
     },
     {
-        "supplier_id": "133997",
+        "supplier_id": "134319",
         "prefix": "RBS",
         "supplier_name": "ROBERTSHAW CONTROLS COMPANY"
     },
@@ -320,8 +305,23 @@
         "supplier_name": "Pietro"
     },
     {
-        "supplier_id": "134269",
+        "supplier_id": "165652",
         "prefix": "IOH",
         "supplier_name": "IO HVAC"
+    },
+    {
+        "supplier_id": "193275",
+        "prefix": "BLU",
+        "supplier_name": "Blue Beam"
+    },
+    {
+        "supplier_id": "134583",
+        "prefix": "WEI",
+        "supplier_name": "Weiss Instruments"
+    },
+    {
+        "supplier_id": "194170",
+        "prefix": "NEE",
+        "supplier_name": "Neeve"
     }
 ]

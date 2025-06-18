@@ -11,6 +11,10 @@ from datetime import datetime
 import json
 import BCS_connector
 
+
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
+
 current_time = datetime.now()
 fcurrent_time = current_time.strftime("%Y-%m-%d-%H-%M-%S")
 log_file = os.path.join("D:\\Price_mapping_Automation\\Logging_information", f"Pricing_automation_{fcurrent_time}")
@@ -29,6 +33,7 @@ class PBmapper():
                    "ASI": "ASI Controls",
                    "ACI": "Automation Components Inc (ACI)",
                    "BEL": "BELIMO AIRCONTROLS (USA), INC",
+                   "BLU": "Blue_beam",
                    "BWR": "Best Wire",
                    "BAP": "BUILDING AUTOMATION PRODUCTS, INC. (BAPI)",
                    "CCS": "Contemporary Control Systems",
@@ -47,7 +52,6 @@ class PBmapper():
                    "HWT": "HONEYWELL THERMAL SOLUTIONS",
                    "ICM": "ICM",
                    "IDC": "IDEC CORPORATION",
-                   "ICS": "Industrial Connections & Solutions, LLC",
                    "JCI": "Johnson Controls Inc",
                    "KLN": "Klein Tools, Inc.",
                    "KMC": "Kreuter (KMC) Controls",
@@ -58,11 +62,13 @@ class PBmapper():
                    "MAX": "MAXITROL COMPANY",
                    "MXL": "Maxline",
                    "NCG": "NU-CALGON WHOLESALER",
+                   "NEE": "Neeve",
                    "PHX": "Phoenix Contact USA, Inc.",
                    "PLN": "PROLON",
                    "RBS": "ROBERTSHAW CONTROLS COMPANY",
                    "SAG": "SAGINAW CONTROL & ENGINEERING",
                    "SCH": "SCHNEIDER ELECTRIC BUILDINGS AMERICAS, INC",
+                   "SCC": "Siemens_combustion",
                    "SEI": "Seitron",
                    "SEN": "SENVA, INC.",
                    "SET": "SETRA SYSTEMS, INC.",
@@ -81,6 +87,7 @@ class PBmapper():
                    "RFL": "NiagaraMod",
                    "FUS": "Fuseco",
                    "J2I": "J2Inn",
+                   "WEI": "Weiss Instruments",
                    "MAX": "MAXITROL COMPANY",
                    "SAS": "Spreecher & Shuh",
                    "SCC": "Siemens Combustion (SCC)",
@@ -192,38 +199,60 @@ class PBmapper():
 
 
         # get the folder paths of all the companies the needs to be automated
-        folder_paths= []
+        folder_paths= {}
 
         for folder in os.listdir(folder_path):
+            # this gets all the company folder paths from the automation folder (onedrive)
+            # then the same folder name is searched or opened (if it does not exist) in the local D drive price mapping files
             cur_prefix = folder[:3]
             
+            company_path = "D:\\Price mapping files - Onedrive setup"
+
             if cur_prefix in company_prefixes:
-                company = os.path.join(folder_path, folder)
-                folder_paths.append(company)
+                pricing = os.path.join(folder_path, folder)
+                company = os.path.join(company_path, folder)
+                folder_paths[pricing] = company
+                print(pricing)
                 print(company)
 
         return folder_paths
 
 
     # read the folder and return the file paths
-    def read_folder(self, company):
+    def read_folder(self, pricing, company):
         
         company_review_file = ""        
         pricing_file = ""
-        folder_path = company
+        folder_path = pricing
+
+        print(os.listdir(pricing))
+
+        pbmatch_found = False
+        comatch_found = False
+
+        for i in os.listdir(pricing):
+            
+            if "PB" in i:
+                pricing_file = os.path.join(folder_path, i)
+                pbmatch_found = True
+                
+        # Ensure the 'company' folder exists
+        if not os.path.exists(company):
+            os.makedirs(company)
 
         for i in os.listdir(company):
-            
 
             if "p21" in i.lower():
-                company_review_file = os.path.join(folder_path, i)
-            
-            elif "pb" in i.lower():
-                pricing_file = os.path.join(folder_path, i)
+                company_review_file = os.path.join(company, i)
+                comatch_found = True
                 
-            else:
-                raise ValueError(f"No relevant files in this folder {folder_path}")
-
+            
+        if not pbmatch_found:
+            raise ValueError(f"No relevant PB files in this folder {folder_path}")
+        
+        if not comatch_found:
+            raise ValueError(f"No relevant P21 files in this folder {company}")
+        
 
         filename = os.path.basename(company)
         company_prefix_name = filename[0:3]
@@ -416,8 +445,8 @@ class PBmapper():
 
 
         # get into each of the folder and read the files
-        for company in company_folders_paths:
-            company_path, pricing_path, company_prefix_name = mapperOB.read_folder(company)
+        for pricing, company in company_folders_paths.items():
+            company_path, pricing_path, company_prefix_name = mapperOB.read_folder(pricing, company)
 
             #print(f"This is the returned from function : {company_path}, {pricing_path}")
 
